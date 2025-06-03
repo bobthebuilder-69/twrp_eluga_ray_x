@@ -1,0 +1,6 @@
+# recovery.fstab for Panasonic Eluga Ray X
+/dev/block/platform/mtk-msdc.0/by-name/system     /system      ext4    ro
+/dev/block/platform/mtk-msdc.0/by-name/cache      /cache       ext4    rw
+/dev/block/platform/mtk-msdc.0/by-name/data       /data        ext4    rw,encryptable=footer
+/dev/block/platform/mtk-msdc.0/by-name/recovery   /recovery    emmc    defaults
+/dev/block/platform/mtk-msdc.0/by-name/boot       /boot        emmc    defaults
