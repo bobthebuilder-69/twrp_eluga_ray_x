@@ -1,4 +1,4 @@
-name: Build TWRP for Panasonic Eluga Ray X (No repo, clone fix)
+name: Build TWRP for Panasonic Eluga Ray X (Clean HTTPS Clone)
 
 on:
   workflow_dispatch: {}
@@ -18,11 +18,7 @@ jobs:
           zip zlib1g-dev liblz4-tool imagemagick libncurses-dev libssl-dev \
           python3 unzip ccache openjdk-8-jdk
 
-      - name: Configure Git to avoid username prompt
-        run: |
-          git config --global credential.helper '!f() { echo "username=git"; echo "password=x"; }; f'
-
-      - name: Clone minimal TWRP source (shallow)
+      - name: Clone minimal TWRP source (shallow, clean)
         run: |
           mkdir -p ~/twrp
           cd ~/twrp
@@ -36,11 +32,11 @@ jobs:
           git clone --depth=1 https://github.com/minimal-manifest-twrp/android_external_libtar.git external/libtar
           git clone --depth=1 https://github.com/minimal-manifest-twrp/android_external_f2fs-tools.git external/f2fs-tools
 
-      - name: Clone your device tree
+      - name: Clone your device tree (private repo with GitHub token)
         run: |
           cd ~/twrp
           mkdir -p device/panasonic
-          git clone https://github.com/bobthebuilder-69/twrp_eluga_ray_x.git device/panasonic/elugarayx
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/bobthebuilder-69/twrp_eluga_ray_x.git device/panasonic/elugarayx
 
       - name: Build TWRP
         run: |
