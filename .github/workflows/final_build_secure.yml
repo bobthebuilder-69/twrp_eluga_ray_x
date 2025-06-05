@@ -1,4 +1,4 @@
-name: Build TWRP for Panasonic Eluga Ray X (GitHub-safe)
+name: Build TWRP for Panasonic Eluga Ray X (with repo sync)
 
 on:
   workflow_dispatch: {}
@@ -6,11 +6,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout your device tree
         uses: actions/checkout@v3
 
-      - name: Install dependencies
+      - name: Install build dependencies
         run: |
           sudo apt update
           sudo apt install -y bc bison build-essential curl flex g++-multilib gcc-multilib \
@@ -18,49 +19,33 @@ jobs:
           zip zlib1g-dev liblz4-tool imagemagick libncurses-dev libssl-dev \
           python3 unzip ccache openjdk-8-jdk
 
-      - name: Create TWRP folder structure
-        run: mkdir -p ~/twrp/device/panasonic/elugarayx
+      - name: Install repo tool
+        run: |
+          mkdir -p ~/bin
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+          chmod a+x ~/bin/repo
+          echo 'export PATH=~/bin:$PATH' >> $GITHUB_ENV
 
-      - name: Copy device tree
-        run: cp -r $GITHUB_WORKSPACE/device/panasonic/elugarayx/* ~/twrp/device/panasonic/elugarayx/
+      - name: Initialize TWRP repo
+        run: |
+          mkdir -p ~/twrp
+          cd ~/twrp
+          ~/bin/repo init -u https://github.com/minimal-manifest-twrp/platform_manifest_twrp_aosp -b twrp-11 --depth=1
 
-      - name: Checkout TWRP source (build)
-        uses: actions/checkout@v3
-        with:
-          repository: minimal-manifest-twrp/android_build
-          path: ~/twrp/build
-
-      - name: Checkout TWRP recovery
-        uses: actions/checkout@v3
-        with:
-          repository: minimal-manifest-twrp/android_bootable_recovery
-          path: ~/twrp/bootable/recovery
-
-      - name: Checkout core
-        uses: actions/checkout@v3
-        with:
-          repository: minimal-manifest-twrp/android_system_core
-          path: ~/twrp/system/core
-
-      - name: Checkout sepolicy
-        uses: actions/checkout@v3
-        with:
-          repository: minimal-manifest-twrp/android_system_sepolicy
-          path: ~/twrp/system/sepolicy
-
-      - name: Checkout extras
+      - name: Sync TWRP repo
         run: |
           cd ~/twrp
-          git clone --depth=1 https://github.com/minimal-manifest-twrp/android_external_busybox.git external/busybox
-          git clone --depth=1 https://github.com/minimal-manifest-twrp/android_external_toybox.git external/toybox
-          git clone --depth=1 https://github.com/minimal-manifest-twrp/android_external_e2fsprogs.git external/e2fsprogs
-          git clone --depth=1 https://github.com/minimal-manifest-twrp/android_external_libtar.git external/libtar
-          git clone --depth=1 https://github.com/minimal-manifest-twrp/android_external_f2fs-tools.git external/f2fs-tools
+          ~/bin/repo sync -j2 --no-tags --no-clone-bundle
+
+      - name: Copy device tree into TWRP source
+        run: |
+          mkdir -p ~/twrp/device/panasonic/elugarayx
+          cp -r $GITHUB_WORKSPACE/device/panasonic/elugarayx/* ~/twrp/device/panasonic/elugarayx/
 
       - name: Build TWRP
         run: |
           cd ~/twrp
-          source build/envsetup.sh || true
+          source build/envsetup.sh
           export ALLOW_MISSING_DEPENDENCIES=true
           lunch omni_elugarayx-eng
           mka recoveryimage -j2
