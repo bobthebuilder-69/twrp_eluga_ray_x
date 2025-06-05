@@ -1,4 +1,4 @@
-name: Build TWRP 3.5.2 for Panasonic Eluga Ray X
+name: Build TWRP 3.5.2 for Panasonic Eluga Ray X (Correct sources)
 
 on:
   workflow_dispatch: {}
@@ -19,25 +19,21 @@ jobs:
           zip zlib1g-dev liblz4-tool imagemagick libncurses-dev libssl-dev \
           python3 unzip ccache openjdk-8-jdk
 
-      - name: Install repo tool
-        run: |
-          mkdir -p ~/bin
-          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
-          chmod a+x ~/bin/repo
-          echo 'export PATH=~/bin:$PATH' >> $GITHUB_ENV
-
-      - name: Initialize TWRP repo (3.5.2 fork)
+      - name: Clone minimal working TWRP source
         run: |
           mkdir -p ~/twrp
           cd ~/twrp
-          ~/bin/repo init -u https://github.com/bobthebuilder-69/forked_twrp_for_eluga -b twrp-11
+          git clone --depth=1 https://github.com/omnirom/android_build.git build
+          git clone --depth=1 https://github.com/omnirom/android_bootable_recovery.git bootable/recovery
+          git clone --depth=1 https://github.com/LineageOS/android_system_core.git system/core
+          git clone --depth=1 https://github.com/LineageOS/android_system_sepolicy.git system/sepolicy
+          git clone --depth=1 https://github.com/omnirom/android_external_busybox.git external/busybox
+          git clone --depth=1 https://github.com/omnirom/android_external_toybox.git external/toybox
+          git clone --depth=1 https://github.com/omnirom/android_external_e2fsprogs.git external/e2fsprogs
+          git clone --depth=1 https://github.com/omnirom/android_external_libtar.git external/libtar
+          git clone --depth=1 https://github.com/omnirom/android_external_f2fs-tools.git external/f2fs-tools
 
-      - name: Sync TWRP repo
-        run: |
-          cd ~/twrp
-          ~/bin/repo sync --force-sync --no-tags --no-clone-bundle -j1
-
-      - name: Copy device tree into TWRP source
+      - name: Copy device tree
         run: |
           mkdir -p ~/twrp/device/panasonic/elugarayx
           cp -r $GITHUB_WORKSPACE/device/panasonic/elugarayx/* ~/twrp/device/panasonic/elugarayx/
@@ -45,7 +41,8 @@ jobs:
       - name: Build TWRP
         run: |
           cd ~/twrp
-          source build/envsetup.sh
+          source build/envsetup.sh || true
           export ALLOW_MISSING_DEPENDENCIES=true
           lunch omni_elugarayx-eng
           mka recoveryimage -j2
+          
