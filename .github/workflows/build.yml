@@ -23,15 +23,15 @@ jobs:
         run: |
           mkdir -p ~/twrp
           cd ~/twrp
-          git clone --depth=1 https://github.com/omnirom/android_build.git build
-          git clone --depth=1 https://github.com/omnirom/android_bootable_recovery.git bootable/recovery
-          git clone --depth=1 https://github.com/LineageOS/android_system_core.git system/core
-          git clone --depth=1 https://github.com/LineageOS/android_system_sepolicy.git system/sepolicy
-          git clone --depth=1 https://github.com/omnirom/android_external_busybox.git external/busybox
-          git clone --depth=1 https://github.com/omnirom/android_external_toybox.git external/toybox
-          git clone --depth=1 https://github.com/omnirom/android_external_e2fsprogs.git external/e2fsprogs
-          git clone --depth=1 https://github.com/omnirom/android_external_libtar.git external/libtar
-          git clone --depth=1 https://github.com/omnirom/android_external_f2fs-tools.git external/f2fs-tools
+          git clone --depth=1 git://github.com/omnirom/android_build.git build
+          git clone --depth=1 git://github.com/omnirom/android_bootable_recovery.git bootable/recovery
+          git clone --depth=1 git://github.com/LineageOS/android_system_core.git system/core
+          git clone --depth=1 git://github.com/LineageOS/android_system_sepolicy.git system/sepolicy
+          git clone --depth=1 git://github.com/omnirom/android_external_busybox.git external/busybox
+          git clone --depth=1 git://github.com/omnirom/android_external_toybox.git external/toybox
+          git clone --depth=1 git://github.com/omnirom/android_external_e2fsprogs.git external/e2fsprogs
+          git clone --depth=1 git://github.com/omnirom/android_external_libtar.git external/libtar
+          git clone --depth=1 git://github.com/omnirom/android_external_f2fs-tools.git external/f2fs-tools
 
       - name: Copy device tree
         run: |
